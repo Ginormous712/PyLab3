@@ -24,23 +24,25 @@ class Airport():
 
     def show_airlines_str(self):
         sql = "SELECT * FROM airline"
-        #print(" === Table: Airline === ")
+
         try:
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
-            return  " === Table: Airline === \n" + self.print_airlines_str(results)
-        except:
-            print("Error")
+
+            return " === Table: Airline === \n" + self.print_airlines_str(results)
+        except MySQLdb.Error as e:
+            return e
 
     def show_flights_str(self):
         sql = "SELECT * FROM flight"
-        #print(" === Table: Flight === ")
+
         try:
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
+
             return " === Table: Flight === \n" + self.print_flights_str(results)
-        except:
-            print("Error")
+        except MySQLdb.Error as e:
+            return e
 
     @staticmethod
     def print_airlines_str(results):
@@ -65,8 +67,9 @@ class Airport():
             departure = row[3]
             arrival = row[4]
             result_str += (f"ID: {id}\tAirline: {airline_id}\tDestination: {destination}\t"
-                  f"Departure {departure}\tArrival: {arrival}\n")
+                           f"Departure {departure}\tArrival: {arrival}\n")
         return result_str
+
     @staticmethod
     def print_flights(results):
         print(Airport.print_flights_str(results))
@@ -79,19 +82,22 @@ class Airport():
 
     def show_flights_for_airline_str(self, airline_id):
         sql = f"SELECT * FROM flight WHERE id_airline = {airline_id}"
-        #print(f" === All flights referenced to Airline with ID: {airline_id} === ")
+
         try:
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
-            return " === All flights referenced to Airline with ID: {airline_id} === \n" + Airport.print_flights_str(results)
-        except:
-            print("Error")
+
+            return (" === All flights referenced to Airline with ID: {airline_id} === \n"
+                    + Airport.print_flights_str(results))
+        except MySQLdb.Error as e:
+            return e
 
     def show_flights_for_airline(self, airline_id):
         print(self.show_flights_for_airline_str(airline_id))
 
     def add_airline(self, id, name):
         sql = "INSERT INTO airline VALUES (%d, '%s')" % (id, name)
+
         try:
             self.cursor.execute(sql)
             self.__db.commit()
@@ -147,8 +153,9 @@ class Airport():
             self.__db.rollback()
 
     def change_flight(self, id, airline_id, destination, departure, arrival):
-        sql = ("UPDATE flight SET id_airline = %d, destination = '%s', departure_time = '%s', arrival_time = '%s' WHERE id_flight = %d"
-               % (airline_id, destination, departure, arrival, id))
+        sql = (
+                "UPDATE flight SET id_airline = %d, destination = '%s', departure_time = '%s', arrival_time = '%s' WHERE id_flight = %d"
+                % (airline_id, destination, departure, arrival, id))
         try:
             self.cursor.execute(sql)
             self.__db.commit()
